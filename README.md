@@ -1,6 +1,8 @@
 Fringe
 ===
 
+[![Build Status](https://travis-ci.org/StarryInternet/fringe.svg?branch=master)](https://travis-ci.org/StarryInternet/fringe)
+
 Fast, lightweight, and extensible message framing over streams.
 
 ### Installing
