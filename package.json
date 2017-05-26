@@ -1,6 +1,6 @@
 {
   "name": "fringe",
-  "version": "0.0.6",
+  "version": "1.0.0",
   "description": "Fast, lightweight, and extensible message framing over streams",
   "keywords": [
     "stream",
