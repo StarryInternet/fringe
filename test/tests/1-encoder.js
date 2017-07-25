@@ -24,7 +24,7 @@ describe( 'Encoder', () => {
 
   describe( '#_transform', () => {
 
-    it( 'accept an string and return a buffer with prefix and length', done => {
+    it( 'accept a string and return a buffer with prefix and length', done => {
       const Encoder = rewire( path );
       // `objectMode: true` prevents the stream from converting our string to
       // buffer so that we can get coverage on passing strings to `_transform`
@@ -38,6 +38,32 @@ describe( 'Encoder', () => {
         assert.equal( header, 'FRINGE' );
         assert.equal( len, 5 );
 
+        done();
+      });
+
+      encoder.write( text );
+    });
+
+    it( 'should modify the length if length modifier has been set', done => {
+      const Encoder = rewire( path );
+      const encoder = new Encoder( { lengthModifier: 2 }, { objectMode: true } );
+      const text   = 'hello';
+
+      encoder.on( 'data', chunk => {
+        assert.equal( chunk.readUInt32BE( 6 ), 3 );
+        done();
+      });
+
+      encoder.write( text );
+    });
+
+    it( 'should not modify the length if length modifier hasnt been set', done => {
+      const Encoder = rewire( path );
+      const encoder = new Encoder( {}, { objectMode: true } );
+      const text   = 'hello';
+
+      encoder.on( 'data', chunk => {
+        assert.equal( chunk.readUInt32BE( 6 ), 5 );
         done();
       });
 

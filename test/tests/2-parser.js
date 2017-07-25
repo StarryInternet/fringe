@@ -311,6 +311,42 @@ describe( 'Parser', () => {
       encoder.write( text );
     });
 
+    it( 'should read extra bytes when length modifier is set', done => {
+      const Parser  = rewire( parserPath );
+      const parser  = new Parser({ lengthModifier: 2 });
+
+      // create a buffer with an insufficient length integer
+      const buf = Buffer.alloc( 14 );
+      let offset = buf.write('FRINGE');
+      offset = buf.writeUInt32BE( 2, offset );
+      offset = buf.write( 'hihi', offset );
+
+      parser.on( 'message', msg => {
+        assert.equal( msg.toString(), 'hihi' );
+        done();
+      });
+
+      parser.write( buf );
+    });
+
+    it( 'should not read extra bytes when length modifier is 0', done => {
+      const Parser  = rewire( parserPath );
+      const parser  = new Parser();
+
+      // create a buffer with an insufficient length integer
+      const buf = Buffer.alloc( 14 );
+      let offset = buf.write('FRINGE');
+      offset = buf.writeUInt32BE( 2, offset );
+      offset = buf.write( 'hihi', offset );
+
+      parser.on( 'message', msg => {
+        assert.equal( msg.toString(), 'hi' );
+        done();
+      });
+
+      parser.write( buf );
+    });
+
   });
 
 });
