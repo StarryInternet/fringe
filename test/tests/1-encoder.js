@@ -70,6 +70,31 @@ describe( 'Encoder', () => {
       encoder.write( text );
     });
 
+    it( 'should emit `error` when error occured in transform', done => {
+      const Encoder = rewire( path );
+
+      class MessageEncoder extends Encoder {
+
+        constructor() {
+          super();
+        }
+
+        translate() {
+          this.emit( 'error', new Error('myerror') );
+          return null;
+        }
+
+      }
+
+      const encoder  = new MessageEncoder();
+
+      encoder.on( 'error', err => {
+        assert.instanceOf( err, Error );
+        done();
+      });
+
+      encoder.write( { test: true } );
+    });
   });
 
 });

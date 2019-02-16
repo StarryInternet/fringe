@@ -133,6 +133,32 @@ describe( 'Parser', () => {
       parser.write( Buffer.alloc( 10 ) );
     });
 
+    it( 'should emit `error` when error occured in transform', done => {
+      const Parser  = rewire( parserPath );
+
+      class MessageParser extends Parser {
+
+        constructor() {
+          super();
+        }
+
+        translate() {
+          this.emit( 'error', new Error('myerror') );
+          return null;
+        }
+
+      }
+
+      const parser  = new MessageParser();
+
+      parser.on( 'error', err => {
+        assert.instanceOf( err, Error );
+        done();
+      });
+
+      parser.write( Buffer.alloc( 10 ) );
+    });
+
     it( 'should separate multiple messages passed in the same chunk', done => {
       const Parser  = rewire( parserPath );
       const Encoder = rewire( encoderPath );
