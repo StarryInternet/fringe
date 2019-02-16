@@ -70,6 +70,58 @@ describe( 'Encoder', () => {
       encoder.write( text );
     });
 
+    it( 'should emit `error` when error occured in transform with objectMode true', done => {
+      const Encoder = rewire( path );
+      const myError = new Error('myerror');
+
+      class MessageEncoder extends Encoder {
+
+        constructor() {
+          super({}, { objectMode: true } );
+        }
+
+        translate() {
+          throw myError;
+        }
+
+      }
+
+      const encoder  = new MessageEncoder();
+
+      encoder.on( 'error', err => {
+        assert.equal( err, myError );
+        done();
+      });
+
+      encoder.write({ myString: 'hello world' });
+    });
+
+    it( 'should emit `error` when error occured in transform with objectMode false', done => {
+      const Encoder = rewire( path );
+      const myError = new Error('myerror');
+
+      class MessageEncoder extends Encoder {
+
+        constructor() {
+          super();
+        }
+
+        translate() {
+          throw myError;
+        }
+
+      }
+
+      const encoder  = new MessageEncoder();
+
+      encoder.on( 'error', err => {
+        assert.equal( err, myError );
+        done();
+      });
+
+      encoder.write('hello word');
+    });
+
   });
 
 });
