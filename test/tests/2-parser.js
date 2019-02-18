@@ -164,7 +164,6 @@ describe( 'Parser', () => {
 
     it( 'should emit `error` when error occured in transform using objectMode true', done => {
       const Encoder = rewire( encoderPath );
-      const encoder = new Encoder({}, { objectMode: true });
       const Parser  = rewire( parserPath );
       const myError = new Error('myerror');
 
@@ -180,6 +179,15 @@ describe( 'Parser', () => {
 
       }
 
+      class MessageEncoder extends Encoder {
+
+        translate( chunk ) {
+          return JSON.stringify( chunk );
+        }
+
+      }
+
+      const encoder = new MessageEncoder({}, { objectMode: true });
       const parser  = new MessageParser();
 
       parser.on( 'error', err => {
