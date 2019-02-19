@@ -133,6 +133,72 @@ describe( 'Parser', () => {
       parser.write( Buffer.alloc( 10 ) );
     });
 
+    it( 'should emit `error` when error occured in transform using objectMode false', done => {
+      const Encoder = rewire( encoderPath );
+      const encoder = new Encoder();
+      const Parser  = rewire( parserPath );
+      const myError = new Error('myerror');
+
+      class MessageParser extends Parser {
+
+        constructor() {
+          super();
+        }
+
+        translate() {
+          throw myError;
+        }
+
+      }
+
+      const parser  = new MessageParser();
+
+      parser.on( 'error', err => {
+        assert.equal( err, myError );
+        done();
+      });
+
+      encoder.write('hello world');
+      parser.write( encoder.read() );
+    });
+
+    it( 'should emit `error` when error occured in transform using objectMode true', done => {
+      const Encoder = rewire( encoderPath );
+      const Parser  = rewire( parserPath );
+      const myError = new Error('myerror');
+
+      class MessageParser extends Parser {
+
+        constructor() {
+          super();
+        }
+
+        translate() {
+          throw myError;
+        }
+
+      }
+
+      class MessageEncoder extends Encoder {
+
+        translate( chunk ) {
+          return JSON.stringify( chunk );
+        }
+
+      }
+
+      const encoder = new MessageEncoder({}, { objectMode: true });
+      const parser  = new MessageParser();
+
+      parser.on( 'error', err => {
+        assert.equal( err, myError );
+        done();
+      });
+
+      encoder.write({ myString: 'hello world' });
+      parser.write( encoder.read() );
+    });
+
     it( 'should separate multiple messages passed in the same chunk', done => {
       const Parser  = rewire( parserPath );
       const Encoder = rewire( encoderPath );
