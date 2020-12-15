@@ -1,4 +1,4 @@
 {
   "root": true,
-  "extends": "starry"
+  "extends": "@starryinternet/starry"
 }
