@@ -1,26 +1,21 @@
-const Benchmark = require('benchmark');
+const benny   = require('benny');
+const Encoder = require('./lib/encoder');
+const Parser  = require('./lib/parser');
 
-global.require = require;
+benny.suite(
+  'Fringe',
+  benny.add( 'parse', () => {
+    const encoder = new Encoder({ prefix: 'TEST', lengthFormat: 'UInt8' });
+    const parser  = new Parser({ prefix: 'TEST', lengthFormat: 'UInt8' });
 
-function setup() {
-  let Encoder = require('./lib/encoder');
-  let Parser  = require('./lib/parser');
-  let encoder = new Encoder({ prefix: 'TEST', lengthFormat: 'UInt8' });
-  let parser  = new Parser({ prefix: 'TEST', lengthFormat: 'UInt8' });
+    encoder.write('Hello World');
 
-  encoder.write('Hello World');
+    const message = encoder.read();
 
-  let message = encoder.read();
+    parser.on( 'message', () => {} );
 
-  parser.on( 'message', function() {} );
-}
-
-function fn() {
-  parser.write( message );
-}
-
-const bench = new Benchmark( 'parse', { setup, fn } );
-
-bench.on( 'complete', () => console.log( bench.toString() ) );
-
-bench.run();
+    return () => parser.write( message );
+  }),
+  benny.cycle(),
+  benny.complete( () => process.exit( 0 ) )
+);

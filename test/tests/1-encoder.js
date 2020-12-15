@@ -46,7 +46,8 @@ describe( 'Encoder', () => {
 
     it( 'should modify the length if length modifier has been set', done => {
       const Encoder = rewire( path );
-      const encoder = new Encoder( { lengthModifier: 2 }, { objectMode: true } );
+      const opts    = [ { lengthModifier: 2 }, { objectMode: true } ];
+      const encoder = new Encoder( ...opts );
       const text   = 'hello';
 
       encoder.on( 'data', chunk => {
@@ -57,7 +58,7 @@ describe( 'Encoder', () => {
       encoder.write( text );
     });
 
-    it( 'should not modify the length if length modifier hasnt been set', done => {
+    it( 'should not modify length if length modifier hasnt been set', done => {
       const Encoder = rewire( path );
       const encoder = new Encoder( {}, { objectMode: true } );
       const text   = 'hello';
@@ -70,14 +71,14 @@ describe( 'Encoder', () => {
       encoder.write( text );
     });
 
-    it( 'should emit `error` when error occured in transform with objectMode true', done => {
+    it( 'should emit `error` on transform exception w/ objectMode', done => {
       const Encoder = rewire( path );
       const myError = new Error('myerror');
 
       class MessageEncoder extends Encoder {
 
         constructor() {
-          super({}, { objectMode: true } );
+          super( {}, { objectMode: true } );
         }
 
         translate() {
@@ -96,7 +97,7 @@ describe( 'Encoder', () => {
       encoder.write({ myString: 'hello world' });
     });
 
-    it( 'should emit `error` when error occured in transform with objectMode false', done => {
+    it( 'should emit `error` on transform exception w/o objectMode', done => {
       const Encoder = rewire( path );
       const myError = new Error('myerror');
 

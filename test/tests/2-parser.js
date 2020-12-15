@@ -1,5 +1,6 @@
-const assert      = require('chai').assert;
-const rewire      = require('rewire');
+const assert = require('chai').assert;
+const rewire = require('rewire');
+
 const parserPath  = '../../lib/parser';
 const encoderPath = '../../lib/encoder';
 
@@ -25,7 +26,7 @@ describe( 'Parser', () => {
 
   describe( '#_transform', () => {
 
-    it( 'should emit `message` when it receives a fully-formed message', done => {
+    it( 'should emit `message` when receiving a fully-formed message', done => {
       const Parser  = rewire( parserPath );
       const Encoder = rewire( encoderPath );
       const parser  = new Parser();
@@ -80,7 +81,7 @@ describe( 'Parser', () => {
       encoder.write( text );
     });
 
-    it( 'should reassamble chunks that were split in the middle of a header', done => {
+    it( 'should reassamble chunks that were split on a header', done => {
       const Parser  = rewire( parserPath );
       const Encoder = rewire( encoderPath );
       const parser  = new Parser();
@@ -100,7 +101,7 @@ describe( 'Parser', () => {
       encoder.write( text );
     });
 
-    it( 'should reassamble chunks that were split TWICE in the middle of a header', done => {
+    it( 'should reassamble chunks that were split TWICE on a header', done => {
       const Parser  = rewire( parserPath );
       const Encoder = rewire( encoderPath );
       const parser  = new Parser();
@@ -133,7 +134,7 @@ describe( 'Parser', () => {
       parser.write( Buffer.alloc( 10 ) );
     });
 
-    it( 'should emit `error` when error occured in transform using objectMode false', done => {
+    it( 'should emit `error` on transform exception w/o objectMode', done => {
       const Encoder = rewire( encoderPath );
       const encoder = new Encoder();
       const Parser  = rewire( parserPath );
@@ -162,7 +163,7 @@ describe( 'Parser', () => {
       parser.write( encoder.read() );
     });
 
-    it( 'should emit `error` when error occured in transform using objectMode true', done => {
+    it( 'should emit `error` on transform exception w/ objectMode', done => {
       const Encoder = rewire( encoderPath );
       const Parser  = rewire( parserPath );
       const myError = new Error('myerror');
@@ -187,7 +188,7 @@ describe( 'Parser', () => {
 
       }
 
-      const encoder = new MessageEncoder({}, { objectMode: true });
+      const encoder = new MessageEncoder( {}, { objectMode: true } );
       const parser  = new MessageParser();
 
       parser.on( 'error', err => {
@@ -246,7 +247,7 @@ describe( 'Parser', () => {
       parser.write( buffer );
     });
 
-    it( 'should literally be able to parse messages one byte at a time', done => {
+    it( 'should be able to parse messages one byte at a time', done => {
       const Parser  = rewire( parserPath );
       const Encoder = rewire( encoderPath );
       const parser  = new Parser();
@@ -281,34 +282,33 @@ describe( 'Parser', () => {
       const text1   = 'hello';
       const text2   = 'world';
 
-      encoder.on( 'data', chunk => {
-        parser.write( chunk );
+      encoder.on( 'data', chunk => parser.write( chunk ) );
+      encoder.write( text1 );
 
-        // write happens asynchronously, so we need to wait
-        // for the data to become readable
+      const msg = parser.read();
+
+      assert.isNotNull(
+        msg,
+        'message was not buffered while waiting for a handler to be bound'
+      );
+
+      parser.on( 'message', () => {
         setImmediate( () => {
-          let msg1 = parser.read();
-
-          assert.isNotNull( msg1, 'message was not buffered while waiting for a handler to be bound' );
-
-          msg1 = msg1.toString('utf8');
-
-          parser.on( 'message', () => {
-            let buffered = parser.read();
-            assert.isNull( buffered, 'stream buffer was not exhausted after `message` was emitted' );
-            done();
-          });
-
-          encoder.write( text2 );
+          const buffered = parser.read();
+          assert.isNull(
+            buffered,
+            'stream buffer was not exhausted after `message` was emitted'
+          );
+          done();
         });
       });
 
-      encoder.write( text1 );
+      setImmediate( () => encoder.write( text2 ) );
     });
 
     it( 'should emit `error` when given a buffer larger than maxSize', done => {
-      const Parser = require('rewire')('../../lib/parser');
-      const Encoder = require('rewire')('../../lib/encoder');
+      const Parser = rewire( parserPath );
+      const Encoder = rewire( encoderPath );
       const parser = new Parser();
       const encoder = new Encoder();
       const text = 'hello';
@@ -344,7 +344,7 @@ describe( 'Parser', () => {
         // write happens asynchronously, so we need to wait
         // for the data to become readable
         setImmediate( () => {
-          let msg = parser.read();
+          const msg = parser.read();
 
           assert.isNull( msg, 'stream buffer was not cleared' );
           done();
@@ -383,9 +383,10 @@ describe( 'Parser', () => {
 
       // create a buffer with an insufficient length integer
       const buf = Buffer.alloc( 14 );
-      let offset = buf.write('FRINGE');
-      offset = buf.writeUInt32BE( 2, offset );
-      offset = buf.write( 'hihi', offset );
+
+      buf.write('FRINGE');
+      buf.writeUInt32BE( 2, 6 );
+      buf.write( 'hihi', 10 );
 
       parser.on( 'message', msg => {
         assert.equal( msg.toString(), 'hihi' );
@@ -401,9 +402,10 @@ describe( 'Parser', () => {
 
       // create a buffer with an insufficient length integer
       const buf = Buffer.alloc( 14 );
-      let offset = buf.write('FRINGE');
-      offset = buf.writeUInt32BE( 2, offset );
-      offset = buf.write( 'hihi', offset );
+
+      buf.write('FRINGE');
+      buf.writeUInt32BE( 2, 6 );
+      buf.write( 'hihi', 10 );
 
       parser.on( 'message', msg => {
         assert.equal( msg.toString(), 'hi' );
