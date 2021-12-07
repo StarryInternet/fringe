@@ -20,13 +20,13 @@
   },
   "homepage": "https://github.com/StarryInternet/fringe",
   "devDependencies": {
-    "benchmark": "^2.1.4",
-    "chai": "3.5.0",
-    "eslint-config-starry": "^2.0.1",
-    "eslint-plugin-starry": "^2.0.1",
-    "mocha": "^3.4.2",
-    "nyc": "^10.3.2",
-    "rewire": "2.5.2"
+    "@starryinternet/eslint-config-starry": "10.4.0",
+    "benny": "3.7.1",
+    "chai": "4.3.4",
+    "eslint-plugin-mocha": "9.0.0",
+    "mocha": "9.1.3",
+    "nyc": "15.1.0",
+    "rewire": "5.0.0"
   },
   "dependencies": {},
   "license": "MIT",
@@ -40,10 +40,10 @@
     }
   ],
   "engines": {
-    "node": ">=6.0.0"
+    "node": ">=16.0.0"
   },
   "scripts": {
-    "test": "eslint lib/* && nyc mocha test/**/*",
+    "test": "eslint . && nyc mocha test/**/*",
     "bench": "node bench.js"
   },
   "main": "index.js"

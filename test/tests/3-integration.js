@@ -11,6 +11,7 @@ describe( 'Integration Tests', () => {
     'UInt32BE'
   ];
 
+  /* eslint-disable mocha/no-setup-in-describe */
   formats.forEach( lengthFormat => {
 
     it( `should support ${ lengthFormat } lengths`, () => {
@@ -33,7 +34,7 @@ describe( 'Integration Tests', () => {
 
   });
 
-  it( 'should parse severely chunked messages', () => {
+  it( 'should parse severely chunked messages', done => {
     const Encoder = rewire('../../lib/encoder');
     const Parser  = rewire('../../lib/parser');
 
@@ -49,23 +50,32 @@ describe( 'Integration Tests', () => {
       return String.fromCharCode( 33 + ~~( Math.random() * 94 ) );
     }
 
-    let buffer   = Buffer.from('');
-    let messages = 1000;
-    let reads    = 0;
+    const chunks   = [];
+    const messages = 1000;
+
+    let buffer = null;
+    let reads  = 0;
 
     parse.on( 'message', () => reads++ );
 
     for ( let i = 0; i < messages; ++i ) {
       const message = getRandomMessage();
       encode.write( message );
-      buffer = Buffer.concat([ buffer, encode.read() ]);
+      chunks.push( encode.read() );
     }
+
+    buffer = Buffer.concat( chunks );
 
     for ( let i = 0; i < buffer.length; i += 100 ) {
       parse.write( buffer.slice( i, i + 100 ) );
     }
 
-    assert.equal( messages, reads );
+    parse.end();
+
+    parse.on( 'finish', () => {
+      assert.equal( messages, reads );
+      done();
+    });
   });
 
 });
