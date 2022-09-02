@@ -23,7 +23,7 @@
     "@starryinternet/eslint-config-starry": "10.4.0",
     "benny": "3.7.1",
     "chai": "4.3.6",
-    "eslint-plugin-mocha": "10.0.4",
+    "eslint-plugin-mocha": "10.1.0",
     "mocha": "10.0.0",
     "nyc": "15.1.0",
     "rewire": "6.0.0"
