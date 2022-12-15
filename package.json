@@ -20,7 +20,7 @@
   },
   "homepage": "https://github.com/StarryInternet/fringe",
   "devDependencies": {
-    "@starryinternet/eslint-config-starry": "10.4.0",
+    "@starryinternet/eslint-config-starry": "10.5.0",
     "benny": "3.7.1",
     "chai": "4.3.6",
     "eslint-plugin-mocha": "10.1.0",
