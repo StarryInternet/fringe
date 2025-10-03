@@ -22,7 +22,7 @@
   "devDependencies": {
     "@starryinternet/eslint-config-starry": "11.0.0",
     "benny": "3.7.1",
-    "chai": "6.0.1",
+    "chai": "6.2.0",
     "eslint-plugin-mocha": "11.2.0",
     "mocha": "11.7.4",
     "nyc": "17.1.0",
