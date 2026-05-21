@@ -24,7 +24,7 @@
     "benny": "3.7.1",
     "chai": "6.2.2",
     "eslint-plugin-mocha": "11.2.0",
-    "mocha": "11.7.5",
+    "mocha": "11.7.6",
     "nyc": "18.0.0",
     "rewire": "9.0.1"
   },
